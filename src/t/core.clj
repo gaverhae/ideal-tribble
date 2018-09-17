@@ -18,7 +18,7 @@
    "H X1 X2 Y C <ENTER> -> Draw a horizontal segment of colour C in row Y between columns X1 and X2 (inclusive)."
    "F X Y C <ENTER> -> Fill the region R with the colour C. R is defined as: Pixel (X,Y) belongs to R. Any other pixel which is the same colour as (X,Y) and shares a common side with any pixel in R also belongs to this region."
    "S <ENTER> -> Show the contents of the current image."
-   "H <ENTER> -> Show this help text."
+   "? <ENTER> -> Show this help text."
    "X <ENTER> -> Terminate the session."])
 
 (defn print-help
@@ -66,7 +66,7 @@
 
 (def no-image
   (str "You do not have any image at the moment. Create one with the I command."
-       " Type H for further help."))
+       " Type ? for further help."))
 
 (defn show-image
   [state args]
@@ -134,7 +134,7 @@
   (let [[cmd & args] input
         f (get {\C clear
                 \F fill
-                \H print-help
+                \? print-help
                 \I init-image
                 \L colour-pixel
                 \S show-image

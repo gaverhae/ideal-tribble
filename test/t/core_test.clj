@@ -95,7 +95,7 @@
               :height 6}}
      {:out ["Bye!"]
       :state nil}]
-  (run-program ["H"
+  (run-program ["?"
                 "S"
                 "I 5 6"
                 "L 2 3 A"
