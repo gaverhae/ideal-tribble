@@ -85,6 +85,7 @@
             "JJZZJ"
             "JWJJJ"
             "JWJJJ"
+            "JJJJJ"
             "JJJJJ"]
       :state {:image [["J" "J" "J" "J" "J"]
                       ["J" "J" "Z" "Z" "J"]

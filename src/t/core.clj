@@ -142,6 +142,21 @@
                        (map (fn [y] [x y]) (range y1 (inc y2)))))}
       (print-help state args))))
 
+(defn horizontal
+  [state args]
+  (let [[x1 x2 y :as r] (safe-parse (take 3 args) 3)
+        c (nth args 3)]
+    (if (and r (= 4 (count args)) (= 1 (count c)))
+      {:out []
+       :state (assoc state
+                     :image
+                     (reduce
+                       (fn [img [x y]]
+                         (assoc-in img [(dec y) (dec x)] c))
+                       (:image state)
+                       (map (fn [x] [x y]) (range x1 (inc x2)))))}
+      (print-help state args))))
+
 (defn main-iter
   "Takes the current state of the game and the next input from the user, and
   returns the next state of the game, or nil if the game is over."
@@ -149,6 +164,7 @@
   (let [[cmd & args] input
         f (get {\C clear
                 \F fill
+                \H horizontal
                 \I init-image
                 \L colour-pixel
                 \S show-image
