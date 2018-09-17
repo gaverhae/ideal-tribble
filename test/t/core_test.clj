@@ -44,6 +44,7 @@
           "OOOOO"
           "OAOOO"
           "OOOOO"
+          "OOOOO"
           "OOOOO"]
     :state {:image [["O" "O" "O" "O" "O"]
                     ["O" "O" "O" "O" "O"]
