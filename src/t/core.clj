@@ -1,4 +1,5 @@
 (ns t.core
+  (:require [clojure.string :as string])
   (:gen-class))
 
 (defn init-state
@@ -32,16 +33,32 @@
   (println "Unrecognized command.")
   (print-help state args))
 
+(defn init-image
+  [state args]
+  (if-let [[w h] (try (map #(Long/parseLong %) args)
+                      (catch Exception e nil))]
+    {:image (->> (repeat w "O")
+                 vec
+                 (repeat h)
+                 vec)
+     :width w
+     :height h}
+    (print-help state args)))
+
 (defn main-iter
   "Takes the current state of the game and the next input from the user, and
   returns the next state of the game, or nil if the game is over."
   [state input]
   (let [[cmd & args] input
-        f (get {\H print-help
+        f (get {\I init-image
+                \H print-help
                 \X quit}
                cmd
                unrecognized-cmd)]
-    (f state args)))
+    (f state (as-> args $
+               (apply str $)
+               (string/trim $)
+               (string/split $ #" +")))))
 
 (defn -main
   [& args]
