@@ -26,6 +26,33 @@
   {:state state
    :out help-text})
 
+(defn validate-args-fn
+  "Generic arg checker. argspec is a vector of :i, :x, :y and :c; :i must be a
+  valid size integer (< 250), :x must be a valid integer for the x coordinate
+  (0 <= x < width), :y must be a valid integer for the y coordinate
+  (0 <= y < height), and c must be a valid colour (single uppercase letter).
+  Prints help if args are not valid."
+  [argspec state args f]
+  (let [safe-parse-int (fn [v]
+                         (try (Long/parseLong v)
+                              (catch Exception _ nil)))
+        validate-spec (fn [spec v]
+                        (case spec
+                          :i (when-let [i (safe-parse-int v)]
+                               (when (<= 1 i 250) i))
+                          :x (when-let [x (safe-parse-int v)]
+                               (when (<= 1 x (:width state))
+                                 (dec x)))
+                          :y (when-let [y (safe-parse-int v)]
+                               (when (<= 1 y (:height state))
+                                 (dec y)))
+                          :c (re-matches #"[A-Z]" v)))
+        parsed-args (map validate-spec argspec args)]
+    (if (or (not= (count argspec) (count args))
+            (some nil? parsed-args))
+      (print-help state nil)
+      (apply f parsed-args))))
+
 (defn quit
   [state args]
   {:state nil
@@ -44,20 +71,16 @@
        (repeat h)
        vec))
 
-(defn safe-parse
-  [args n]
-  (when (= n (count args))
-    (try (map #(Long/parseLong %) args)
-         (catch Exception e nil))))
-
 (defn init-image
   [state args]
-  (if-let [[w h] (safe-parse args 2)]
-    {:state {:image (make-blank w h)
-             :width w
-             :height h}
-     :out []}
-    (print-help state args)))
+  (validate-args-fn
+    [:i :i]
+    state args
+    (fn [w h]
+      {:state {:image (make-blank w h)
+               :width w
+               :height h}
+       :out []})))
 
 (defn clear
   [{:keys [width height] :as state} args]
@@ -77,23 +100,24 @@
 
 (defn colour-pixel
   [state args]
-  (let [[x y :as r] (safe-parse (take 2 args) 2)
-        c (nth args 2)]
-    (if (and r (= 3 (count args)) (= 1 (count c)))
-      {:state (assoc-in state [:image (dec y) (dec x)] c)
-       :out []}
-      (print-help state args))))
+  (validate-args-fn
+    [:x :y :c]
+    state args
+    (fn [x y c]
+      {:state (assoc-in state [:image y x] c)
+       :out []})))
 
 (defn fill
   [state args]
-  (let [[x y :as r] (safe-parse (take 2 args) 2)
-        c (nth args 2)]
-    (if (and r (= 3 (count args)) (= 1 (count c)))
+  (validate-args-fn
+    [:x :y :c]
+    state args
+    (fn [x y c]
       {:out []
        :state
        (assoc state
               :image
-              (let [init-pos [(dec x) (dec y)]
+              (let [init-pos [x y]
                     in-image? (fn [[x y]] (and (<= 0 x)
                                                (< x (:width state))
                                                (<= 0 y)
@@ -123,39 +147,38 @@
                                 to-fill))]
                 (reduce (fn [img [x y]]
                           (assoc-in img [y x] new-c))
-                          (:image state)
-                          to-fill)))}
-      (print-help state args))))
+                        (:image state)
+                        to-fill)))})))
 
 (defn vertical
   [state args]
-  (let [[x y1 y2 :as r] (safe-parse (take 3 args) 3)
-        c (nth args 3)]
-    (if (and r (= 4 (count args)) (= 1 (count c)))
+  (validate-args-fn
+    [:x :y :y :c]
+    state args
+    (fn [x y1 y2 c]
       {:out []
        :state (assoc state
                      :image
                      (reduce
                        (fn [img [x y]]
-                         (assoc-in img [(dec y) (dec x)] c))
+                         (assoc-in img [y x] c))
                        (:image state)
-                       (map (fn [y] [x y]) (range y1 (inc y2)))))}
-      (print-help state args))))
+                       (map (fn [y] [x y]) (range y1 (inc y2)))))})))
 
 (defn horizontal
   [state args]
-  (let [[x1 x2 y :as r] (safe-parse (take 3 args) 3)
-        c (nth args 3)]
-    (if (and r (= 4 (count args)) (= 1 (count c)))
+  (validate-args-fn
+    [:x :x :y :c]
+    state args
+    (fn [x1 x2 y c]
       {:out []
        :state (assoc state
                      :image
                      (reduce
                        (fn [img [x y]]
-                         (assoc-in img [(dec y) (dec x)] c))
+                         (assoc-in img [y x] c))
                        (:image state)
-                       (map (fn [x] [x y]) (range x1 (inc x2)))))}
-      (print-help state args))))
+                       (map (fn [x] [x y]) (range x1 (inc x2)))))})))
 
 (defn main-iter
   "Takes the current state of the game and the next input from the user, and
