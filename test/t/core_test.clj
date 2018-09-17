@@ -40,7 +40,11 @@
                     ["O" "O" "O" "O" "O"]]
             :width 5
             :height 6}}
-   {:out []
+   {:out ["OOOOO"
+          "OOOOO"
+          "OAOOO"
+          "OOOOO"
+          "OOOOO"]
     :state {:image [["O" "O" "O" "O" "O"]
                     ["O" "O" "O" "O" "O"]
                     ["O" "A" "O" "O" "O"]
@@ -76,15 +80,19 @@
                       ["J" "J" "J" "J" "J"]]
               :width 5
               :height 6}}
-     {:out []
+     {:out ["JJJJJ"
+            "JJZZJ"
+            "JWJJJ"
+            "JWJJJ"
+            "JJJJJ"]
       :state {:image [["J" "J" "J" "J" "J"]
-                     ["J" "J" "Z" "Z" "J"]
-                     ["J" "W" "J" "J" "J"]
-                     ["J" "W" "J" "J" "J"]
-                     ["J" "J" "J" "J" "J"]
-                     ["J" "J" "J" "J" "J"]]
-             :width 5
-             :height 6}}
+                      ["J" "J" "Z" "Z" "J"]
+                      ["J" "W" "J" "J" "J"]
+                      ["J" "W" "J" "J" "J"]
+                      ["J" "J" "J" "J" "J"]
+                      ["J" "J" "J" "J" "J"]]
+              :width 5
+              :height 6}}
      {:out ["Bye!"]
       :state nil}]
   (run-program ["H"
