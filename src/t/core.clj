@@ -5,7 +5,7 @@
 (defn init-state
   "Returns an initial, empty state for the game."
   []
-  {:image []
+  {:image nil
    :width 0
    :height 0})
 
@@ -63,13 +63,22 @@
   (str "You do not have any image at the moment. Create one with the I command."
        " Type H for further help."))
 
+(defn show-image
+  [state args]
+  {:state state
+   :out (if-let [img (:image state)]
+          (mapv string/join img)
+          [no-image])})
+
 (defn main-iter
   "Takes the current state of the game and the next input from the user, and
   returns the next state of the game, or nil if the game is over."
   [state input]
   (let [[cmd & args] input
-        f (get {\I init-image
+        f (get {\C clear
                 \H print-help
+                \I init-image
+                \S show-image
                 \X quit}
                cmd
                unrecognized-cmd)]

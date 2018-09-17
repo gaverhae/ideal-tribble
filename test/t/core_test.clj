@@ -11,15 +11,15 @@
 
 (expect
   [{:out []
-    :state {:image []
+    :state {:image nil
             :width 0
             :height 0}}
    {:out t/help-text
-    :state {:image []
+    :state {:image nil
             :width 0
             :height 0}}
    {:out [t/no-image]
-    :state {:image []
+    :state {:image nil
             :width 0
             :height 0}}
    {:out []
