@@ -44,10 +44,15 @@
        (repeat h)
        vec))
 
+(defn safe-parse
+  [args n]
+  (when (= n (count args))
+    (try (map #(Long/parseLong %) args)
+         (catch Exception e nil))))
+
 (defn init-image
   [state args]
-  (if-let [[w h] (try (map #(Long/parseLong %) args)
-                      (catch Exception e nil))]
+  (if-let [[w h] (safe-parse args 2)]
     {:state {:image (make-blank w h)
              :width w
              :height h}
@@ -70,6 +75,15 @@
           (mapv string/join img)
           [no-image])})
 
+(defn colour-pixel
+  [state args]
+  (let [[x y :as r] (safe-parse (take 2 args) 2)
+        c (nth args 2)]
+    (if (and r (= 3 (count args)) (= 1 (count c)))
+      {:state (assoc-in state [:image (dec y) (dec x)] c)
+       :out []}
+      (print-help state args))))
+
 (defn main-iter
   "Takes the current state of the game and the next input from the user, and
   returns the next state of the game, or nil if the game is over."
@@ -78,6 +92,7 @@
         f (get {\C clear
                 \H print-help
                 \I init-image
+                \L colour-pixel
                 \S show-image
                 \X quit}
                cmd
