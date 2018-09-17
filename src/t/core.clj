@@ -84,12 +84,56 @@
        :out []}
       (print-help state args))))
 
+(defn fill
+  [state args]
+  (let [[x y :as r] (safe-parse (take 2 args) 2)
+        c (nth args 2)]
+    (if (and r (= 3 (count args)) (= 1 (count c)))
+      {:out []
+       :state
+       (assoc state
+              :image
+              (let [init-pos [(dec x) (dec y)]
+                    in-image? (fn [[x y]] (and (<= 0 x)
+                                               (< x (:width state))
+                                               (<= 0 y)
+                                               (< y (:height state))))
+                    neighbours (fn [[x y]] [[x (inc y)] [(inc x) y] [x (dec y)] [(dec x) y]])
+                    colour (fn [[x y]] (get-in (:image state) [y x]))
+                    old-c (colour init-pos)
+                    new-c c
+                    to-fill (loop [to-fill #{init-pos}
+                                   seen #{init-pos}
+                                   to-check (->> (neighbours init-pos)
+                                                 (filter in-image?)
+                                                 set)]
+                              (if (seq to-check)
+                                (let [n (first to-check)]
+                                  (if (= old-c (colour n))
+                                    (recur (conj to-fill n)
+                                           (conj seen n)
+                                           (reduce conj
+                                                   (set (rest to-check))
+                                                   (->> (neighbours n)
+                                                        (filter in-image?)
+                                                        (remove seen))))
+                                    (recur to-fill
+                                           (conj seen n)
+                                           (set (rest to-check)))))
+                                to-fill))]
+                (reduce (fn [img [x y]]
+                          (assoc-in img [y x] new-c))
+                          (:image state)
+                          to-fill)))}
+      (print-help state args))))
+
 (defn main-iter
   "Takes the current state of the game and the next input from the user, and
   returns the next state of the game, or nil if the game is over."
   [state input]
   (let [[cmd & args] input
         f (get {\C clear
+                \F fill
                 \H print-help
                 \I init-image
                 \L colour-pixel
