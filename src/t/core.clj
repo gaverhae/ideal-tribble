@@ -137,13 +137,13 @@
                                     (recur (conj to-fill n)
                                            (conj seen n)
                                            (reduce conj
-                                                   (set (rest to-check))
+                                                   (disj to-check n)
                                                    (->> (neighbours n)
                                                         (filter in-image?)
                                                         (remove seen))))
                                     (recur to-fill
                                            (conj seen n)
-                                           (set (rest to-check)))))
+                                           (disj to-check n))))
                                 to-fill))]
                 (reduce (fn [img [x y]]
                           (assoc-in img [y x] new-c))
