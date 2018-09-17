@@ -33,17 +33,25 @@
   (println "Unrecognized command.")
   (print-help state args))
 
+(defn make-blank
+  [w h]
+  (->> (repeat w "O")
+       vec
+       (repeat h)
+       vec))
+
 (defn init-image
   [state args]
   (if-let [[w h] (try (map #(Long/parseLong %) args)
                       (catch Exception e nil))]
-    {:image (->> (repeat w "O")
-                 vec
-                 (repeat h)
-                 vec)
+    {:image (make-blank w h)
      :width w
      :height h}
     (print-help state args)))
+
+(defn clear
+  [{:keys [width height] :as state} args]
+  (assoc state :image (make-blank width height)))
 
 (defn main-iter
   "Takes the current state of the game and the next input from the user, and
